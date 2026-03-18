@@ -36,7 +36,11 @@ app.post(
 );
 
 app.use(helmet());
-app.use(cors());
+app.use(cors({
+    origin: "http://localhost:5173", // frontend của bạn
+    credentials: true, // cho phép gửi cookie 
+    }
+));
 app.use(cookieParser());
 app.use(express.json());// Parse JSON từ request body
 app.use(express.urlencoded({ extended: true }));// dung de parse form data xu ly du lieu tu form gui len de su dung cho viec req.body cua express

@@ -8,13 +8,23 @@ exports.protect = catchAsync(async (req, res, next) => {
 
   // lay token tu header ( Dung cho Fluter) hoac Cookie (cho web)
 
-  if (
-    req.headers.authorization &&
-    req.headers.authorization.startsWith("Bearer ")
-  ) {
+  // 1. Kiểm tra Header (Ưu tiên)
+  if (req.headers.authorization && req.headers.authorization.startsWith("Bearer ")) {
     token = req.headers.authorization.split(" ")[1];
-  } else if (req.cookies && req.cookies.accessToken) {
-    token = req.cookies.accessToken;
+  } 
+  // 2. Kiểm tra Cookie (Tên cookie phải chuẩn là Authorization)
+  else if (req.cookies && req.cookies.Authorization) {
+    let authCookie = req.cookies.Authorization;
+
+    // Giải mã %20 thành dấu cách nếu có
+    authCookie = decodeURIComponent(authCookie);
+
+    // Nếu cookie chứa cả chữ "Bearer ", ta cắt lấy phần sau
+    if (authCookie.startsWith("Bearer ")) {
+      token = authCookie.split(" ")[1];
+    } else {
+      token = authCookie; // Trường hợp cookie chỉ chứa mỗi chuỗi JWT
+    }
   }
 
   if (!token) {

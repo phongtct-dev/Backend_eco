@@ -35,8 +35,9 @@ exports.signin = async (body) => {
   const { email, password } = body;
 
   //1 kiem tra
-
+  
   const existingUser = await User.findOne({ email }).select("+password");
+
   if (!existingUser) {
     throw new AppError("User khong ton tai!", 401);
   }

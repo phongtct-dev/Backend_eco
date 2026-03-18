@@ -12,7 +12,7 @@ module.exports = catchAsync(async (req, res, next) => {
     req.body.refreshToken;
 
     if (!refreshToken) {
-    return next(new AppError("Khong co refresh token", 401));
+    return next(new AppError("Khong co refresh token", 403));
   }
 
      const result = await authService.refreshToken(refreshToken);;
@@ -22,7 +22,7 @@ module.exports = catchAsync(async (req, res, next) => {
   }
 
     return res
-        .cookie("Authorization", "Bearer " + result.token, {
+        .cookie("Authorization", "Bearer " + result.accessToken, {
           expires: new Date(Date.now() + 8 * 3600000),
           httpOnly: process.env.NODE_ENV === "production",
           secure: process.env.NODE_ENV === "production",

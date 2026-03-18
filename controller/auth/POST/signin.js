@@ -6,7 +6,7 @@ const catchAsync = require("../../../utils/catchAsync");
 
 module.exports = catchAsync(async (req, res, next) => {
   
-
+  
     const { email, password } = req.body;
     const { error } = signinSchema.validate({ email, password });
 
@@ -18,7 +18,7 @@ module.exports = catchAsync(async (req, res, next) => {
 
     //Set cookie
    return res
-      .cookie("Authorization", "Bearer " + result.token, {
+      .cookie("Authorization", "Bearer " + result.accessToken, {
         expires: new Date(Date.now() + 8 * 3600000), //8h
         httpOnly: process.env.NODE_ENV === "production", //chỉ đọc từ server (httpOnly) HTTPS (secure) khi ở production
         secure: process.env.NODE_ENV === "production", //chỉ gửi quagửi qua HTTPS (secure) khi ở production
