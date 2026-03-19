@@ -95,8 +95,8 @@ exports.checkout = async (userId, checkoutData, userEmail) => {
         quantity: 1,
       }],
       mode: 'payment',
-      success_url: `${process.env.CLIENT_URL}/payment-success?orderId=${newOrder._id}`,
-      cancel_url: `${process.env.CLIENT_URL}/payment-fail`,
+      success_url: `${process.env.CLIENT_URL}/order/success/${newOrder._id}`,
+      cancel_url: `${process.env.CLIENT_URL}/checkout`,
     });
 
     return { status: "success", checkoutUrl: session.url, order: newOrder };
