@@ -7,44 +7,52 @@ class APIFeatures {
   //1 Tim kiem theo ten (Search)
   search() {
     if (this.queryString.keyword) {
-      // Sử dụng $text search của MongoDB
-      this.query = this.query
-        .find(
-          { $text: { $search: this.queryString.keyword } },
-          { score: { $meta: "textScore" } },
-        )
-        .sort({ score: { $meta: "textScore" } });
+      // Thay vì find trực tiếp, ta lưu điều kiện search vào một biến
+      const searchObj = { $text: { $search: this.queryString.keyword } };
+      this.query = this.query.find(searchObj);
+      
+      // Thêm điểm số tìm kiếm để sort
+      this.query = this.query.select({ score: { $meta: "textScore" } });
     }
     return this;
   }
 
   //2 Bo loc nang cao
 
-  filter() {
+filter() {
     const queryObj = { ...this.queryString };
-    const excludedFields = ["page", "sort", "limit", "fields", "name","role"];
-    excludedFields.forEach((el) => delete queryObj[el]); //để xóa key đó khỏi queryObj
+    // THÊM 'isPromotion' vào mảng loại bỏ dưới đây
+    const excludedFields = ["page", "sort", "limit", "fields", "keyword", "isPromotion"]; 
+    excludedFields.forEach((el) => delete queryObj[el]);
 
-    //
-    // 1. Xử lý lọc Khuyến mãi đang hoạt động
-    if (this.queryString.isPromotion === 'true') {
-        const now = new Date();
-        this.query = this.query.find({
-            isOnSale: true,
-            discountStart: { $lte: now },
-            discountEnd: { $gte: now }
-        });
+    let finalQuery = {};
+
+    // 1. Xử lý các toán tử [gte], [lte]... (Giữ nguyên logic bóc tách ngoặc vuông)
+    for (let key in queryObj) {
+        if (key.includes('[') && key.includes(']')) {
+            const field = key.split('[')[0];
+            let operator = key.match(/\[(.*?)\]/)[1];
+            if (!operator.startsWith('$')) operator = `$${operator}`;
+
+            if (!finalQuery[field]) finalQuery[field] = {};
+            const val = queryObj[key];
+            finalQuery[field][operator] = (isNaN(val) || val === '') ? val : val * 1;
+        } else {
+            finalQuery[key] = queryObj[key];
+        }
     }
 
-    // chuyen query sang Mogo
-    let queryStr = JSON.stringify(queryObj);
-    queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
+    // 2. Logic Khuyến mãi (Chỉ dùng các field thực tế trong Schema)
+    if (this.queryString.isPromotion === 'true') {
+        const now = new Date();
+        finalQuery.isOnSale = true;
+        finalQuery.discountStart = { $lte: now };
+        finalQuery.discountEnd = { $gte: now };
+    }
 
-
-    //
-    this.query = this.query.find(JSON.parse(queryStr));
+    this.query = this.query.find(finalQuery);
     return this;
-  }
+}
 
   //3 Sap xep (Sort)
   sort() {

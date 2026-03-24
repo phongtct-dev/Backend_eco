@@ -17,6 +17,6 @@ router.post("/check", protect, voucherController.checkvoucher);
 router.use(protect, restrictTo("admin"));
 router.post("/create", voucherController.createvoucher);
 router.patch("/lock/:id", voucherController.lockvoucher);
-
+router.get("/all", protect, restrictTo("admin"), voucherController.getallvouchers);
 module.exports = router;
 

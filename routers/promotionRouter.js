@@ -17,6 +17,6 @@ router.use(protect, restrictTo('admin'));
 router.patch('/:id/setpromotion',promotionController.setpromotion);
 
 router.delete('/:id/stoppromotion',promotionController.stoppromotion)
-
+router.get("/all", protect, restrictTo("admin"), promotionController.getallpromotions);
 
 module.exports = router;

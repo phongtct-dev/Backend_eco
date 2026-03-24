@@ -1,2 +1,10 @@
 node_modules/
 .env
+
+
+finalSyncData.js
+seedAdvanced.js
+seedOrdersReviews.js
+syncCategoryCount.js
+updateProductDescriptions.js
+updateProductImages.js

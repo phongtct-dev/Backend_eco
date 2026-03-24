@@ -11,7 +11,7 @@ module.exports = catchAsync(async (req, res, next) => {
             .filter();
         
     const totalItems = await countFeatures.query.countDocuments();
-    
+
     // 1. Khởi tạo APIFeatures
     // Lưu ý: lọc isDeleted: false mặc định
     const features = new APIFeatures(Product.find({ isDeleted: false }), req.query)
@@ -23,7 +23,7 @@ module.exports = catchAsync(async (req, res, next) => {
 
     // 2. Gọi Service xử lý kết quả cuối cùng
     // const products = await productServices.getAllProducts(features);
-
+    
     // 3. Thực thi query qua Service (Có thêm populate)
     const products = await features.query.populate('category', 'name');
 
