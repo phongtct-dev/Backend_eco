@@ -12,7 +12,7 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 exports.checkout = async (userId, checkoutData, userEmail) => {
   const { voucherCode, shippingAddress, paymentMethod } = checkoutData;
 
-  // 1. Lấy giỏ hàng & Tính toán tiền (Logic cũ của bạn)
+  // 1. Lấy giỏ hàng & Tính toán tiền 
   const cart = await Cart.findOne({ user: userId }).populate("items.product");
   if (!cart || cart.items.length === 0) throw new AppError("Giỏ hàng trống", 400);
 
@@ -86,7 +86,7 @@ exports.checkout = async (userId, checkoutData, userEmail) => {
       line_items: [{
         price_data: {
           currency: 'vnd',
-          unit_amount: finalAmount, // VND là số nguyên trực tiếp
+          unit_amount: Math.round(finalAmount), // VND là số nguyên trực tiếp
           product_data: {
             name: `Thanh toán đơn hàng #${newOrder._id}`,
             description: `Tổng tiền thanh toán cho ${cart.items.length} mặt hàng`,
@@ -95,8 +95,14 @@ exports.checkout = async (userId, checkoutData, userEmail) => {
         quantity: 1,
       }],
       mode: 'payment',
-      success_url: `${process.env.CLIENT_URL}/order/success/${newOrder._id}`,
-      cancel_url: `${process.env.CLIENT_URL}/checkout`,
+
+      // // Đổi URL chuyển hướng về Web
+      // success_url: `${process.env.CLIENT_URL}/order/success/${newOrder._id}`,
+      // cancel_url: `${process.env.CLIENT_URL}/checkout`,
+
+      // Đổi URL chuyển hướng về Custom Scheme của App Flutter
+      success_url: `ecoapp://app/order-success`, 
+      cancel_url: `ecoapp://app/checkout`,
     });
 
     return { status: "success", checkoutUrl: session.url, order: newOrder };

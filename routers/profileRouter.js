@@ -7,6 +7,7 @@ const upload = require("../middlewares/multer");
 
 
 router.use(protect)
+
 router.get('/profile', profileController.getprofile);
 router.patch('/update-profile', upload.single('avatar'), profileController.updateprofile);
 
