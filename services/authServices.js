@@ -48,6 +48,13 @@ exports.signin = async (body) => {
     throw new AppError("Thong tin dang nhap hoac mat khau khong dung!", 401);
   }
 
+  if (!existingUser.verified) {
+    throw new AppError(
+      "Tai khoan chua duoc xac thuc email. Vui long kiem tra hop thu va xac thuc truoc khi dang nhap!",
+      403
+    );
+  }
+
   // 2 Access token (8h)
   const accessTokenExpiresIn = "8h";
   const accessToken = jwt.sign(
@@ -161,7 +168,7 @@ exports.sendVerificationCode = async (email) => {
     throw new AppError("Tai khoan da duoc xac minh!!!", 400);
   }
 
-  const codeValue = Math.floor(100000 + Math.random() * 90000).toString();
+  const codeValue = Math.floor(100000 + Math.random() * 900000).toString();
 
   const info = await transport.sendMail({
     from: process.env.NODE_CODE_SENDING_EMAIL_ADDRESS,
@@ -227,8 +234,8 @@ exports.verifyVerificationCode = async (email, providedCode) => {
   }
 
   /// cap nhat trang thai thanh cong
-  ((existingUser.verified = true),
-    (existingUser.verifyVerificationCode = undefined)); // Xóa mã sau khi dùng xong
+  existingUser.verified = true;
+  existingUser.verificationCode = undefined; // Xóa mã sau khi dùng xong
   existingUser.verificationCodeValidation = undefined; //// Xóa thời gian sau khi dùng xong
   await existingUser.save();
 
@@ -271,7 +278,7 @@ exports.sendForgotPasswordCode = async (email) => {
   const info = await transport.sendMail({
     from: process.env.NODE_CODE_SENDING_EMAIL_ADDRESS,
     to: existingUser.email,
-    success: "Ma Khoi phuc mat khau ",
+    subject: "Ma Khoi phuc mat khau ",
     html: `<h1>  Ma cua ban la : ${codeValue}</h1>`,
   });
 
@@ -310,7 +317,8 @@ exports.forgotPasswordCode = async (email , providedCode, newPassword) => {
     // cap nhat ma moi , xoa ma cu
 
     existingUser.password = await doHash(newPassword,12);
-    existingUser.forgotPasswordCode = undefined,
-    existingUser.forgotPasswordCodeValidation = undefined,
+    existingUser.forgotPasswordCode = undefined;
+    existingUser.forgotPasswordCodeValidation = undefined;
     await existingUser.save()
+    return true;
 }
