@@ -10,7 +10,7 @@ const globalErrorHandler = (err, req, res, next) => { // Hàm xử lý lỗi to�
                 .json({
                     status: err.status,
                     error: err,
-                    message: err.messsage,
+                    message: err.message,
                     stack: err.stack, // Hiện dòng code nào bị lỗi
                 });
     }

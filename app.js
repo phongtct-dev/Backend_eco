@@ -37,7 +37,7 @@ app.post(
 
 app.use(helmet());
 app.use(cors({
-    origin: "http://localhost:5173", // frontend của bạn
+    origin: "http://localhost:5173", // frontend
     credentials: true, // cho phép gửi cookie 
     }
 ));
